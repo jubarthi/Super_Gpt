@@ -4,7 +4,7 @@ import type { LimitsSnapshot } from "./limits-types";
 export type Language = keyof typeof languages;
 export type LauncherProfile = "production" | "development";
 export type BrowserInteractionMode = "automatic" | "manual";
-export type Surface = "browser" | "setup" | "mcp" | "activity" | "limits" | "settings";
+export type Surface = "browser" | "setup" | "mcp" | "jev" | "activity" | "limits" | "settings";
 
 export interface LauncherState {
   version: 1;

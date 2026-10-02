@@ -26,6 +26,8 @@ const DEFAULT_STATE = Object.freeze({
   sidebarWidth: 252,
   mcpGuideStep: 0,
   sessionRefreshReminderAt: null,
+  jevApiKey: null,
+  jevEnabled: false,
 });
 
 function nextSessionRefreshReminderAt(now = Date.now()) {
@@ -82,6 +84,12 @@ function readState(filePath) {
       && (typeof state.sessionRefreshReminderAt !== "string"
         || !Number.isFinite(Date.parse(state.sessionRefreshReminderAt)))) {
       state.sessionRefreshReminderAt = DEFAULT_STATE.sessionRefreshReminderAt;
+    }
+    if (state.jevApiKey !== null && typeof state.jevApiKey !== "string") {
+      state.jevApiKey = DEFAULT_STATE.jevApiKey;
+    }
+    if (typeof state.jevEnabled !== "boolean") {
+      state.jevEnabled = DEFAULT_STATE.jevEnabled;
     }
     for (const key of [
       "coreSetupComplete",

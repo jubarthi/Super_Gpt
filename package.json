@@ -1,20 +1,20 @@
 {
-  "name": "codex-chatgpt-web",
-  "version": "6.1.3",
+  "name": "super-gpt",
+  "version": "1.0.0",
   "private": true,
-  "description": "A focused local Responses bridge that runs Codex tasks through a user-authenticated ChatGPT web session.",
+  "description": "SUPER GPT — Desktop control center with Jev Intelligence powered by TypeSafe.",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/miuuyy/codex-chatgpt-web.git"
+    "url": "git+https://github.com/jubarthi/Super_Gpt.git"
   },
-  "homepage": "https://github.com/miuuyy/codex-chatgpt-web#readme",
+  "homepage": "https://github.com/jubarthi/Super_Gpt#readme",
   "bugs": {
-    "url": "https://github.com/miuuyy/codex-chatgpt-web/issues"
+    "url": "https://github.com/jubarthi/Super_Gpt/issues"
   },
   "packageManager": "bun@1.4.0",
   "type": "module",
   "bin": {
-    "codex-chatgpt-web": "./src/cli.ts"
+    "super-gpt": "./src/cli.ts"
   },
   "files": [
     "dist",

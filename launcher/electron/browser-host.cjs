@@ -2932,7 +2932,7 @@ class BrowserHost {
     if (!evidence
       || typeof evidence.effort !== "string"
       || !evidence.effort
-      || evidence.response !== "CODEX WEB GPT READY") {
+      || evidence.response !== "SUPER GPT READY") {
       throw new Error("Browser helper returned invalid smoke-test evidence");
     }
     this.logger.info("smoke.completed", { effort: evidence.effort, responseChars: evidence.response.length });

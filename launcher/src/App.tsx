@@ -611,6 +611,13 @@ function LauncherShell({
                     navigateSurface("mcp");
                   }}
                 />
+                <SidebarItem
+                  active={surface === "jev"}
+                  badge={snapshot.state.jevEnabled ? <ActionDot tone="success" /> : <ActionDot tone="optional" />}
+                  icon="shield"
+                  label="Jev"
+                  onClick={() => navigateSurface("jev")}
+                />
               </SidebarGroup>
               <SidebarGroup label={copy.runtime}>
                 <SidebarItem active={surface === "activity"} icon="activity" label={copy.activity} onClick={() => navigateSurface("activity")} />
@@ -702,6 +709,9 @@ function LauncherShell({
                 snapshot={snapshot}
                 updateState={updateState}
               />
+            ) : null}
+            {surface === "jev" ? (
+              <JevSurface copy={copy} snapshot={snapshot} setError={setError} />
             ) : null}
             {surface === "activity" ? (
               <ActivitySurface copy={copy} language={language} logs={logs} setError={setError} />
@@ -2647,11 +2657,136 @@ function LaunchLoading() {
   );
 }
 
+function JevSurface({ copy, snapshot, setError }: { copy: Copy; snapshot: LauncherSnapshot; setError: (e: string) => void }) {
+  const [apiKey, setApiKey] = useState(snapshot.state.jevApiKey ?? "");
+  const [saving, setSaving] = useState(false);
+  const [testResult, setTestResult] = useState<string | null>(null);
+  const enabled = snapshot.state.jevEnabled === true;
+
+  const handleSave = useCallback(async () => {
+    if (!api) return;
+    setSaving(true);
+    try {
+      await api.invoke("launcher:jev-configure", { apiKey: apiKey.trim(), enabled: true });
+      setTestResult(null);
+    } catch (cause) {
+      setError(messageOf(cause));
+    } finally {
+      setSaving(false);
+    }
+  }, [apiKey, setError]);
+
+  const handleDisable = useCallback(async () => {
+    if (!api) return;
+    try {
+      await api.invoke("launcher:jev-configure", { apiKey: apiKey.trim(), enabled: false });
+    } catch (cause) {
+      setError(messageOf(cause));
+    }
+  }, [apiKey, setError]);
+
+  const handleTest = useCallback(async () => {
+    if (!api) return;
+    try {
+      const result = await api.invoke("launcher:jev-test", { command: "rm -rf /" });
+      setTestResult(result.safe ? "⚠️ Command was marked safe (unexpected)" : "✅ Destructive command blocked successfully");
+    } catch (cause) {
+      setTestResult("❌ Test failed: " + messageOf(cause));
+    }
+  }, []);
+
+  return (
+    <div className="surface-scroll">
+      <div className="surface-content">
+        <header className="surface-header">
+          <p className="surface-label">{enabled ? copy.jevEnabled : copy.jevDisabled}</p>
+          <h2>{copy.jevTitle}</h2>
+          <p className="surface-subtitle">{copy.jevSubtitle}</p>
+        </header>
+
+        <section className="setup-section">
+          <h3 className="section-title">{copy.jevGetKey}</h3>
+          <div className="card">
+            <p className="card-body">{copy.jevGetKeyBody}</p>
+            <div className="card-actions" style={{ marginTop: 12 }}>
+              <button className="btn secondary" onClick={() => window.open("https://console.typesafe.ai", "_blank")}>
+                {copy.jevOpenConsole}
+              </button>
+            </div>
+          </div>
+        </section>
+
+        <section className="setup-section">
+          <h3 className="section-title">{copy.jevApiKeyLabel}</h3>
+          <div className="card">
+            <input
+              className="text-input"
+              placeholder={copy.jevApiKeyPlaceholder}
+              type="password"
+              value={apiKey}
+              onChange={(e) => setApiKey(e.target.value)}
+            />
+            <div className="card-actions" style={{ marginTop: 12, display: "flex", gap: 8 }}>
+              <button
+                className="btn primary"
+                disabled={!apiKey.trim() || saving}
+                onClick={handleSave}
+              >
+                {saving ? "..." : copy.jevActivate}
+              </button>
+              {enabled ? (
+                <button className="btn secondary" onClick={handleDisable}>
+                  {copy.jevDeactivate}
+                </button>
+              ) : null}
+            </div>
+          </div>
+        </section>
+
+        {enabled ? (
+          <section className="setup-section">
+            <h3 className="section-title">Features</h3>
+            <div className="card">
+              <div className="setting-row">
+                <div>
+                  <p className="setting-title">{copy.jevFeatureSafety}</p>
+                  <p className="setting-body">{copy.jevFeatureSafetyBody}</p>
+                </div>
+                <span className="badge success">Active</span>
+              </div>
+              <div className="setting-row">
+                <div>
+                  <p className="setting-title">{copy.jevFeatureRouting}</p>
+                  <p className="setting-body">{copy.jevFeatureRoutingBody}</p>
+                </div>
+                <span className="badge success">Active</span>
+              </div>
+              <div className="setting-row">
+                <div>
+                  <p className="setting-title">{copy.jevFeatureContext}</p>
+                  <p className="setting-body">{copy.jevFeatureContextBody}</p>
+                </div>
+                <span className="badge success">Active</span>
+              </div>
+              <div className="card-actions" style={{ marginTop: 12 }}>
+                <button className="btn secondary" onClick={handleTest}>
+                  Test Safety Filter
+                </button>
+                {testResult ? <p style={{ marginTop: 8, fontSize: 13 }}>{testResult}</p> : null}
+              </div>
+            </div>
+          </section>
+        ) : null}
+      </div>
+    </div>
+  );
+}
+
 function FatalMessage({ message }: { message: string }) {
   return (
     <main className="fatal-message">
       <BrandMark />
-      <h1>Codex Web GPT</h1>
+      <h1>SUPER GPT</h1>
       <p>{message}</p>
     </main>
   );
@@ -2659,7 +2794,7 @@ function FatalMessage({ message }: { message: string }) {
 
 function browserTabTitleFromTitle(value: string | undefined, copy: Copy): string {
   const title = value?.trim();
-  if (!title || title === "about:blank" || title.includes("codex-web-gpt-browser-host")) return copy.temporaryChat;
+  if (!title || title === "about:blank" || title.includes("super-gpt-browser-host")) return copy.temporaryChat;
   return title.replace(/\s*[|–-]\s*ChatGPT\s*$/i, "") || copy.temporaryChat;
 }
 

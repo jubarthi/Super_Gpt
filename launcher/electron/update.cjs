@@ -6,9 +6,9 @@ const path = require("node:path");
 const { spawn, spawnSync } = require("node:child_process");
 const { pipeline } = require("node:stream/promises");
 
-const REPOSITORY = "miuuyy/codex-chatgpt-web";
+const REPOSITORY = "jubarthi/Super_Gpt";
 const RELEASE_API_URL = `https://api.github.com/repos/${REPOSITORY}/releases/latest`;
-const USER_AGENT = "codex-web-gpt-launcher-updater";
+const USER_AGENT = "super-gpt-launcher-updater";
 const MAX_REDIRECTS = 5;
 
 function parseVersion(value) {
@@ -43,13 +43,13 @@ function releaseVersion(tagName) {
 
 function releaseAssetName(version, platform = process.platform, arch = process.arch) {
   if (platform === "darwin" && ["arm64", "x64"].includes(arch)) {
-    return `codex-web-gpt-${version}-mac-${arch}.zip`;
+    return `super-gpt-${version}-mac-${arch}.zip`;
   }
   if (platform === "win32" && arch === "x64") {
-    return `codex-web-gpt-${version}-win-x64.exe`;
+    return `super-gpt-${version}-win-x64.exe`;
   }
   if (platform === "linux" && ["x64", "arm64"].includes(arch)) {
-    return `codex-web-gpt-${version}-linux-${arch}.AppImage`;
+    return `super-gpt-${version}-linux-${arch}.AppImage`;
   }
   return null;
 }
@@ -150,7 +150,7 @@ function findMacApplication(root) {
   const appEntry = entries.find((entry) => entry.isDirectory() && entry.name.endsWith(".app"));
   if (!appEntry) throw new Error("The macOS update archive does not contain an application bundle");
   const application = path.join(root, appEntry.name);
-  const executable = path.join(application, "Contents", "MacOS", "Codex Web GPT");
+  const executable = path.join(application, "Contents", "MacOS", "SUPER GPT");
   if (!fs.existsSync(executable) || !fs.statSync(executable).isFile()) {
     throw new Error("The macOS update archive is incomplete");
   }
@@ -158,7 +158,7 @@ function findMacApplication(root) {
 }
 
 function linuxUpdateInstallation() {
-  const guidance = "Quit Codex Web GPT, run install-launcher.sh from the README once, then reopen the installed app. Your settings and browser profile are preserved.";
+  const guidance = "Quit SUPER GPT, run install-launcher.sh from the README once, then reopen the installed app. Your settings and browser profile are preserved.";
   const target = process.env.CODEX_WEB_GPT_APPIMAGE?.trim()
     || process.env.APPIMAGE?.trim();
   if (!target || !path.isAbsolute(target)) {

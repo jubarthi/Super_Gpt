@@ -82,8 +82,8 @@ try {
     const stage = path.join(scratch, "stage");
     fs.mkdirSync(stage);
     run("ditto", ["-x", "-k", archive, stage]);
-    macAppBundle = path.join(stage, "Codex Web GPT.app");
-    executable = path.join(macAppBundle, "Contents", "MacOS", "Codex Web GPT");
+    macAppBundle = path.join(stage, "SUPER GPT.app");
+    executable = path.join(macAppBundle, "Contents", "MacOS", "SUPER GPT");
     command = executable;
     args = ["--launcher-smoke-test"];
   } else if (process.platform === "linux") {
