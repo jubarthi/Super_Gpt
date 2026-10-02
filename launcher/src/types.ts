@@ -32,6 +32,8 @@ export interface LauncherState {
   codexRestartRequired?: boolean;
   mcpGuideStep: number;
   sessionRefreshReminderAt: string | null;
+  jevApiKey: string | null;
+  jevEnabled: boolean;
 }
 
 export interface BrowserState {
@@ -190,6 +192,7 @@ export interface LauncherApi {
   onOperation(listener: (state: OperationState) => void): () => void;
   onLog(listener: (record: LogRecord) => void): () => void;
   onUpdateState(listener: (state: UpdateState) => void): () => void;
+  invoke(channel: string, ...args: any[]): Promise<any>;
 }
 
 declare global {

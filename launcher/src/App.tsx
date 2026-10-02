@@ -614,7 +614,7 @@ function LauncherShell({
                 <SidebarItem
                   active={surface === "jev"}
                   badge={snapshot.state.jevEnabled ? <ActionDot tone="success" /> : <ActionDot tone="optional" />}
-                  icon="shield"
+                  icon="mcp"
                   label="Jev"
                   onClick={() => navigateSurface("jev")}
                 />
