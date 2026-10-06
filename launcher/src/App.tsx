@@ -2696,89 +2696,76 @@ function JevSurface({ copy, snapshot, setError }: { copy: Copy; snapshot: Launch
   }, []);
 
   return (
-    <div className="surface-scroll">
-      <div className="surface-content">
-        <header className="surface-header">
-          <p className="surface-label">{enabled ? copy.jevEnabled : copy.jevDisabled}</p>
-          <h2>{copy.jevTitle}</h2>
-          <p className="surface-subtitle">{copy.jevSubtitle}</p>
-        </header>
+    <ContentSurface
+      eyebrow={enabled ? copy.jevEnabled : copy.jevDisabled}
+      subtitle={copy.jevSubtitle}
+      title={copy.jevTitle}
+    >
+      <SectionHeading label={copy.jevGetKey} />
+      <div className="settings-list">
+        <SettingRow body={copy.jevGetKeyBody} label="Console">
+          <button className="button-secondary" onClick={() => window.open("https://console.typesafe.ai", "_blank")}>
+            {copy.jevOpenConsole}
+          </button>
+        </SettingRow>
+      </div>
 
-        <section className="setup-section">
-          <h3 className="section-title">{copy.jevGetKey}</h3>
-          <div className="card">
-            <p className="card-body">{copy.jevGetKeyBody}</p>
-            <div className="card-actions" style={{ marginTop: 12 }}>
-              <button className="btn secondary" onClick={() => window.open("https://console.typesafe.ai", "_blank")}>
-                {copy.jevOpenConsole}
-              </button>
-            </div>
-          </div>
-        </section>
-
-        <section className="setup-section">
-          <h3 className="section-title">{copy.jevApiKeyLabel}</h3>
-          <div className="card">
+      <SectionHeading label={copy.jevApiKeyLabel} />
+      <div className="settings-list">
+        <SettingRow body="Paste your API key below to activate Jev Intelligence." label="TypeSafe API Key">
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px", width: "100%", maxWidth: "300px" }}>
             <input
               className="text-input"
+              onChange={(e) => setApiKey(e.target.value)}
               placeholder={copy.jevApiKeyPlaceholder}
               type="password"
               value={apiKey}
-              onChange={(e) => setApiKey(e.target.value)}
+              style={{ width: "100%", boxSizing: "border-box" }}
             />
-            <div className="card-actions" style={{ marginTop: 12, display: "flex", gap: 8 }}>
+            <div style={{ display: "flex", gap: "8px" }}>
               <button
-                className="btn primary"
+                className="button-primary"
                 disabled={!apiKey.trim() || saving}
                 onClick={handleSave}
               >
                 {saving ? "..." : copy.jevActivate}
               </button>
               {enabled ? (
-                <button className="btn secondary" onClick={handleDisable}>
+                <button className="button-secondary" onClick={handleDisable}>
                   {copy.jevDeactivate}
                 </button>
               ) : null}
             </div>
           </div>
-        </section>
+        </SettingRow>
+      </div>
 
-        {enabled ? (
-          <section className="setup-section">
-            <h3 className="section-title">Features</h3>
-            <div className="card">
-              <div className="setting-row">
-                <div>
-                  <p className="setting-title">{copy.jevFeatureSafety}</p>
-                  <p className="setting-body">{copy.jevFeatureSafetyBody}</p>
-                </div>
-                <span className="badge success">Active</span>
-              </div>
-              <div className="setting-row">
-                <div>
-                  <p className="setting-title">{copy.jevFeatureRouting}</p>
-                  <p className="setting-body">{copy.jevFeatureRoutingBody}</p>
-                </div>
-                <span className="badge success">Active</span>
-              </div>
-              <div className="setting-row">
-                <div>
-                  <p className="setting-title">{copy.jevFeatureContext}</p>
-                  <p className="setting-body">{copy.jevFeatureContextBody}</p>
-                </div>
-                <span className="badge success">Active</span>
-              </div>
-              <div className="card-actions" style={{ marginTop: 12 }}>
-                <button className="btn secondary" onClick={handleTest}>
+      {enabled ? (
+        <>
+          <SectionHeading label="Features" />
+          <div className="settings-list">
+            <SettingRow body={copy.jevFeatureSafetyBody} label={copy.jevFeatureSafety}>
+              <span className="badge success">Active</span>
+            </SettingRow>
+            <SettingRow body={copy.jevFeatureRoutingBody} label={copy.jevFeatureRouting}>
+              <span className="badge success">Active</span>
+            </SettingRow>
+            <SettingRow body={copy.jevFeatureContextBody} label={copy.jevFeatureContext}>
+              <span className="badge success">Active</span>
+            </SettingRow>
+            
+            <SettingRow body="Verify that Jev is active by simulating a destructive command." label="Safety Filter Test">
+              <div style={{ display: "flex", flexDirection: "column", gap: "8px", alignItems: "flex-end" }}>
+                <button className="button-secondary" onClick={handleTest}>
                   Test Safety Filter
                 </button>
-                {testResult ? <p style={{ marginTop: 8, fontSize: 13 }}>{testResult}</p> : null}
+                {testResult ? <p style={{ fontSize: 13, margin: 0 }}>{testResult}</p> : null}
               </div>
-            </div>
-          </section>
-        ) : null}
-      </div>
-    </div>
+            </SettingRow>
+          </div>
+        </>
+      ) : null}
+    </ContentSurface>
   );
 }
 

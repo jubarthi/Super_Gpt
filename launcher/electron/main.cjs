@@ -521,7 +521,7 @@ function syncFreshConversationPreference(stateStore, config) {
   return state;
 }
 
-function registerIpc({ logger, stateStore }) {
+function registerIpc({ logger, stateStore, jevMiddleware }) {
   const runtimeChannels = new Set([
     "launcher:setup-core", "launcher:setup-mcp", "launcher:uninstall-integration",
     "launcher:bigger-context", "launcher:skill-attachments", "launcher:fresh-conversation-per-turn",
@@ -1229,7 +1229,7 @@ async function start() {
     publish: (state) => send("launcher:update-state", state),
     logger,
   });
-  registerIpc({ logger, stateStore });
+  registerIpc({ logger, stateStore, jevMiddleware });
   const trayAvailable = createTray(logger, stateStore.read().language);
   if (startHidden && !trayAvailable) mainWindow.once("ready-to-show", () => showMainWindow());
   const launcherSmokeTest = process.argv.includes("--launcher-smoke-test");

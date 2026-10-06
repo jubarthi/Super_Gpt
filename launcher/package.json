@@ -22,6 +22,7 @@
     "start": "electron ."
   },
   "dependencies": {
+    "@typesafe-ai/sdk": "^0.6.0",
     "motion": "^12.42.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0"
@@ -73,16 +74,23 @@
       "signIgnore": [
         "[/\\\\]Contents[/\\\\]Resources[/\\\\]runtime[/\\\\]runtime[/\\\\]bun$"
       ],
-      "target": ["dmg", "zip"]
+      "target": [
+        "dmg",
+        "zip"
+      ]
     },
     "win": {
       "icon": "assets/icon.ico",
-      "target": ["nsis"]
+      "target": [
+        "nsis"
+      ]
     },
     "linux": {
       "category": "Development",
       "icon": "assets/icon.png",
-      "target": ["AppImage"]
+      "target": [
+        "AppImage"
+      ]
     },
     "nsis": {
       "guid": "d1a6026a-6210-588e-9a2b-da3936f94e02",
