@@ -1,9 +1,9 @@
 :root {
   color-scheme: dark;
 
-  --blue-100: #99ceff;
-  --blue-300: #339cff;
-  --blue-900: #00284d;
+  --blue-100: #ffe599;
+  --blue-300: #ffc107;
+  --blue-900: #4d3a00;
   --gray-0: #ffffff;
   --gray-100: #ededed;
   --gray-300: #afafaf;
@@ -11,9 +11,9 @@
   --gray-600: #414141;
   --gray-700: #303030;
   --gray-750: #282828;
-  --gray-800: #212121;
-  --gray-900: #181818;
-  --gray-1000: #0d0d0d;
+  --gray-800: #1a1a1a;
+  --gray-900: #111111;
+  --gray-1000: #080808;
   --green-300: #40c977;
   --orange-300: #ff8549;
   --red-300: #ff6764;
@@ -23,9 +23,9 @@
   --color-background-surface: var(--gray-900);
   --color-background-sidebar: var(--gray-800);
   --color-background-elevated: var(--gray-750);
-  --color-background-control: rgb(255 255 255 / 3%);
-  --color-background-control-hover: rgb(255 255 255 / 7%);
-  --color-background-control-active: rgb(255 255 255 / 10%);
+  --color-background-control: rgb(255 193 7 / 5%);
+  --color-background-control-hover: rgb(255 193 7 / 10%);
+  --color-background-control-active: rgb(255 193 7 / 15%);
   --color-background-button-secondary: rgb(255 255 255 / 5%);
   --color-background-button-secondary-hover: rgb(255 255 255 / 8%);
   --color-background-status-success: rgb(4 184 76 / 16%);
@@ -36,7 +36,7 @@
   --color-text-secondary: rgb(255 255 255 / 70%);
   --color-text-tertiary: rgb(255 255 255 / 50%);
   --color-text-disabled: rgb(255 255 255 / 32%);
-  --color-text-accent: var(--blue-100);
+  --color-text-accent: var(--blue-300);
   --color-text-success: var(--green-300);
   --color-text-warning: var(--orange-300);
   --color-text-error: var(--red-300);
@@ -44,10 +44,10 @@
   --color-icon-primary: rgb(255 255 255 / 90%);
   --color-icon-secondary: rgb(255 255 255 / 70%);
   --color-icon-tertiary: rgb(255 255 255 / 50%);
-  --color-border: rgb(255 255 255 / 8%);
-  --color-border-light: rgb(255 255 255 / 4%);
-  --color-border-heavy: rgb(255 255 255 / 16%);
-  --color-border-focus: rgb(51 156 255 / 70%);
+  --color-border: rgb(255 193 7 / 15%);
+  --color-border-light: rgb(255 193 7 / 8%);
+  --color-border-heavy: rgb(255 193 7 / 30%);
+  --color-border-focus: rgb(255 193 7 / 70%);
 
   --font-ui: "OpenAI Sans", -apple-system, BlinkMacSystemFont, "SF Pro Text", "Hiragino Sans", "Yu Gothic UI", "Meiryo", "Segoe UI", sans-serif;
   --font-mono: ui-monospace, "SFMono-Regular", "SF Mono", Menlo, Consolas, monospace;
