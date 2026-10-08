@@ -1,1 +1,0 @@
-import sys; import os; import subprocess; query = open("jev_query.json", "r", encoding="utf-8").read(); script_path = r"C:\Users\User\.gemini\config\skills\JEV-TDS\jev_tds_adapter.py"; subprocess.run([sys.executable, script_path, query])
