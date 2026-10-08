@@ -1,4 +1,4 @@
-import { activateChatGptEffortMenu, parseChatGptEffortSliderState } from "../../chatgpt-session";
+﻿import { activateChatGptEffortMenu, parseChatGptEffortSliderState } from "../../chatgpt-session";
 import type { ChatGptWebAdapterEffort, ChatGptWebModelFamily } from "../../chatgpt-web-models";
 import { ChatGptWebAdapterError } from "./adapter-error";
 
@@ -6,7 +6,7 @@ type EffortMenu = Awaited<ReturnType<typeof activateChatGptEffortMenu>>;
 
 function familyError(family: ChatGptWebModelFamily, cause?: unknown): ChatGptWebAdapterError {
   return new ChatGptWebAdapterError(
-    `ChatGPT model ${family} could not be selected and verified. The pending message was not sent. Check the model in the browser; if ChatGPT uses an unsupported language, select English in Settings → General → Language and reload it.`,
+    `ChatGPT model ${family} could not be selected and verified. The pending message was not sent. Check the model in the browser; if ChatGPT uses an unsupported language, select English in Settings â†’ General â†’ Language and reload it.`,
     { status: 400, errorType: "invalid_request_error", code: "model_version_unavailable", retryable: false, cause },
   );
 }
@@ -14,11 +14,11 @@ function familyError(family: ChatGptWebModelFamily, cause?: unknown): ChatGptWeb
 function familyOption(menu: EffortMenu, family: ChatGptWebModelFamily) {
   return menu.menu.getByRole("menuitemradio", {
     // No trailing $ anchor: ChatGPT may append availability text or subtitles to the
-    // accessible name (e.g. "GPT-5.6 Sol\nDisponível até..."). exact is omitted so the
-    // regex controls matching. 6.x versions (6.1, 6.2…) and Terra/Luna variants are accepted.
+    // accessible name (e.g. "GPT-5.6 Sol\nDisponÃ­vel atÃ©..."). exact is omitted so the
+    // regex controls matching. 6.x versions (6.1, 6.2â€¦) and Terra/Luna variants are accepted.
     name: family === "5.6" ? /^(?:GPT[-\s]?)?5\.6(?:\s+(?:Sol|Terra|Luna))?(?:\s+Pro)?(?:\s|$)/i
-      // Simplified/Traditional Chinese and Japanese share 最新; Korean uses 최신.
-      : /^(?:Latest|最新|최신|(?:GPT[-\s]?)?6(?:\.\d+)?(?:\s+(?:Astra|Sol|Luna))?(?:\s+Pro)?)(?:\s|$)/i,
+      // Simplified/Traditional Chinese and Japanese share æœ€æ–°; Korean uses ìµœì‹ .
+      : /^(?:Latest|æœ€æ–°|ìµœì‹ |(?:GPT[-\s]?)?6(?:\.\d+)?(?:\s+(?:Astra|Sol|Luna))?(?:\s+Pro)?)(?:\s|$)/i,
     includeHidden: true,
   });
 }
@@ -58,6 +58,14 @@ export async function selectChatGptModelFamily(
       const current = familyOption(selected, family);
       if (await current.count() > 1) throw familyError(family);
       if (await current.count() === 1 && await current.getAttribute("aria-checked") === "true") return selected;
+      
+      const trigger = selected.menu.locator('[role="menuitem"][aria-expanded]');
+      if (await trigger.count() === 1) {
+        const text = await trigger.textContent() ?? "";
+        if (family === "5.6" && /(?:GPT[-\s]?)?5\.6/i.test(text)) return selected;
+        if (family === "6" && /(?:Latest|最新|최신|(?:GPT[-\s]?)?6)/i.test(text)) return selected;
+      }
+      
       await new Promise(resolve => setTimeout(resolve, 50));
     } while (Date.now() < deadline);
     throw familyError(family);
@@ -77,7 +85,7 @@ export function chatGptModelFamilyMatches(
   const expectedMajor = family === "6" && effort !== "max" ? "5" : family === "6" ? "6" : "5";
   const states = descriptions.flatMap(text => {
     // Capture version (e.g. 5.6, 6.1) and name (Sol, Astra, Terra, Luna)
-    const match = /^(?:GPT[-\s]?)?(\d+(?:\.\d+)?)(?:\s+(Sol|Astra|Terra|Luna))?\s+([^,，]+)(?:[,，]|$)/i
+    const match = /^(?:GPT[-\s]?)?(\d+(?:\.\d+)?)(?:\s+(Sol|Astra|Terra|Luna))?\s+([^,ï¼Œ]+)(?:[,ï¼Œ]|$)/i
       .exec(text.replace(/\s+/g, " ").trim());
     return match ? [{ version: match[1], name: match[2]?.toLowerCase(), mode: match[3]!.trim() }] : [];
   });
@@ -96,7 +104,17 @@ export async function assertChatGptModelFamily(
   const deadline = Date.now() + settleMs;
   do {
     const option = familyOption(menu, family);
-    const checked = await option.count() === 1 && await option.getAttribute("aria-checked") === "true";
+    let checked = await option.count() === 1 && await option.getAttribute("aria-checked") === "true";
+    
+    if (!checked) {
+      const trigger = menu.menu.locator('[role="menuitem"][aria-expanded]');
+      if (await trigger.count() === 1) {
+        const text = await trigger.textContent() ?? "";
+        if (family === "5.6" && /(?:GPT[-\s]?)?5\.6/i.test(text)) checked = true;
+        else if (family === "6" && /(?:Latest|最新|최신|(?:GPT[-\s]?)?6)/i.test(text)) checked = true;
+      }
+    }
+
     const state = parseChatGptEffortSliderState(
       await menu.slider.getAttribute("aria-valuemin"), await menu.slider.getAttribute("aria-valuemax"),
       await menu.slider.getAttribute("aria-valuenow"),
@@ -105,9 +123,13 @@ export async function assertChatGptModelFamily(
       (element.getAttribute("aria-describedby") ?? "").split(/\s+/).filter(Boolean)
         .map(id => element.ownerDocument.getElementById(id)?.textContent ?? "")
     ));
-    if (checked && state && state.value === state.min + effortIndex && chatGptModelFamilyMatches(descriptions, family, effort)) return;
+    const matchesDescription = descriptions.length > 0 ? chatGptModelFamilyMatches(descriptions, family, effort) : true;
+
+    if (checked && state && state.value === state.min + effortIndex && matchesDescription) return;
     if (Date.now() >= deadline) break;
     await new Promise(resolve => setTimeout(resolve, 50));
   } while (true);
   throw familyError(family);
 }
+
+
