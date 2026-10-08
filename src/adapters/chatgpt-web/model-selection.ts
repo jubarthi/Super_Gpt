@@ -13,10 +13,12 @@ function familyError(family: ChatGptWebModelFamily, cause?: unknown): ChatGptWeb
 
 function familyOption(menu: EffortMenu, family: ChatGptWebModelFamily) {
   return menu.menu.getByRole("menuitemradio", {
-    name: family === "5.6" ? /^GPT[-\s]?5\.6\s+Sol(?:\s+Pro)?$/i
+    // No trailing $ anchor: ChatGPT may append availability text or subtitles to the
+    // accessible name (e.g. "GPT-5.6 Sol\nDisponível até..."). exact is omitted so the
+    // regex controls matching. 6.x versions (6.1, 6.2…) and the Sol variant are accepted.
+    name: family === "5.6" ? /^GPT[-\s]?5\.6\s+Sol(?:\s+Pro)?(?:\s|$)/i
       // Simplified/Traditional Chinese and Japanese share 最新; Korean uses 최신.
-      : /^(?:Latest|最新|최신|GPT[-\s]?6(?:\s+Astra)?(?:\s+Pro)?)$/i,
-    exact: true,
+      : /^(?:Latest|最新|최신|GPT[-\s]?6(?:\.\d+)?\s+(?:Astra|Sol)(?:\s+Pro)?)(?:\s|$)/i,
     includeHidden: true,
   });
 }
@@ -72,14 +74,15 @@ export function chatGptModelFamilyMatches(
 ): boolean {
   // Latest uses 5.6 for the existing lower-effort multipart acknowledgements and 6 for Pro.
   // Never interpret a future Latest Pro model as 6, or a lower effort as the final Pro response.
-  const expected = family === "6" && effort !== "max" ? "5.6" : family;
+  const expectedMajor = family === "6" && effort !== "max" ? "5" : family === "6" ? "6" : "5";
   const states = descriptions.flatMap(text => {
-    const match = /^(?:GPT[-\s]?)?(\d+(?:\.\d+)?)(?:\s+(Sol|Astra))?\s+([^,，]+)(?:[,，]|$)/i
+    // Capture version (e.g. 5.6, 6.1) and name (Sol, Astra, Terra, Luna)
+    const match = /^(?:GPT[-\s]?)?(\d+(?:\.\d+)?)(?:\s+(Sol|Astra|Terra|Luna))?\s+([^,，]+)(?:[,，]|$)/i
       .exec(text.replace(/\s+/g, " ").trim());
     return match ? [{ version: match[1], name: match[2]?.toLowerCase(), mode: match[3]!.trim() }] : [];
   });
-  return states.length > 0 && states.every(state => state.version === expected
-    && (!state.name || state.name === (expected === "5.6" ? "sol" : "astra"))
+  return states.length > 0 && states.every(state => state.version.startsWith(expectedMajor)
+    // Relaxed name requirement to support new model variants.
     && (effort === "max" ? /^Pro$/i.test(state.mode) : !/^Pro$/i.test(state.mode)));
 }
 
