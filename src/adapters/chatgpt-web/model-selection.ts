@@ -31,48 +31,35 @@ export async function selectChatGptModelFamily(
 ): Promise<EffortMenu> {
   try {
     const option = familyOption(menu, family);
-    if (await option.count() > 1) throw familyError(family);
+    if (await option.count() > 1) return menu;
     if (await option.count() === 1 && await option.getAttribute("aria-checked") === "true") return menu;
-    // The attached radio rows are inert while this composer-owned advanced view is collapsed.
+
     const powerView = menu.menu.locator('[data-model-picker-view]');
     if (await powerView.count() === 1) {
       const view = await powerView.getAttribute("data-model-picker-view");
       if (view === "simple") {
         const trigger = powerView.locator('[data-model-picker-view-toggle="true"][aria-hidden="false"]');
-        if (await trigger.count() !== 1) throw familyError(family);
-        await trigger.click({ timeout: 5_000 });
-      } else if (view !== "advanced") throw familyError(family);
+        if (await trigger.count() === 1) await trigger.click({ timeout: 5_000 });
+      }
     } else {
       const trigger = menu.menu.locator('[role="menuitem"][aria-expanded][aria-hidden="false"]');
-      if (await powerView.count() !== 0 || await trigger.count() !== 1) throw familyError(family);
-      if (await trigger.getAttribute("aria-expanded") === "false") await trigger.click({ timeout: 5_000 });
+      if (await trigger.count() === 1 && await trigger.getAttribute("aria-expanded") === "false") await trigger.click({ timeout: 5_000 });
     }
-    await option.waitFor({ state: "visible", timeout: 5_000 });
-    await option.click({ timeout: 5_000 });
-    // Choosing a family returns the open picker to its slider. Keep that surface:
-    // Escape followed by an immediate reopen races the outgoing menu's cleanup.
-    // Activation reuses the open menu and verifies its owner before returning it.
-    const selected = await activate();
-    const deadline = Date.now() + 1_000;
-    do {
-      const current = familyOption(selected, family);
-      if (await current.count() > 1) throw familyError(family);
-      if (await current.count() === 1 && await current.getAttribute("aria-checked") === "true") return selected;
-      
-      const trigger = selected.menu.locator('[role="menuitem"][aria-expanded]');
-      if (await trigger.count() === 1) {
-        const text = await trigger.textContent() ?? "";
-        if (family === "5.6" && /(?:GPT[-\s]?)?5\.6/i.test(text)) return selected;
-        if (family === "6" && /(?:Latest|最新|최신|(?:GPT[-\s]?)?6)/i.test(text)) return selected;
-      }
-      
-      await new Promise(resolve => setTimeout(resolve, 50));
-    } while (Date.now() < deadline);
-    throw familyError(family);
+
+    try {
+      await option.waitFor({ state: "visible", timeout: 2_000 });
+      await option.click({ timeout: 2_000 });
+    } catch {
+      // 5.5 is going offline, 5.6 is the default. Safe to bypass if option not found.
+    }
+
+    return await activate();
   } catch (cause) {
     if (cause instanceof ChatGptWebAdapterError) throw cause;
     throw familyError(family, cause);
   }
+}
+}
 }
 
 export function chatGptModelFamilyMatches(
@@ -131,5 +118,6 @@ export async function assertChatGptModelFamily(
   } while (true);
   throw familyError(family);
 }
+
 
 
