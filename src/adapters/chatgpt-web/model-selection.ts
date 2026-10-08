@@ -15,10 +15,10 @@ function familyOption(menu: EffortMenu, family: ChatGptWebModelFamily) {
   return menu.menu.getByRole("menuitemradio", {
     // No trailing $ anchor: ChatGPT may append availability text or subtitles to the
     // accessible name (e.g. "GPT-5.6 Sol\nDisponível até..."). exact is omitted so the
-    // regex controls matching. 6.x versions (6.1, 6.2…) and the Sol variant are accepted.
-    name: family === "5.6" ? /^GPT[-\s]?5\.6\s+Sol(?:\s+Pro)?(?:\s|$)/i
+    // regex controls matching. 6.x versions (6.1, 6.2…) and Terra/Luna variants are accepted.
+    name: family === "5.6" ? /^GPT[-\s]?5\.6\s+(?:Sol|Terra|Luna)(?:\s+Pro)?(?:\s|$)/i
       // Simplified/Traditional Chinese and Japanese share 最新; Korean uses 최신.
-      : /^(?:Latest|最新|최신|GPT[-\s]?6(?:\.\d+)?\s+(?:Astra|Sol)(?:\s+Pro)?)(?:\s|$)/i,
+      : /^(?:Latest|最新|최신|GPT[-\s]?6(?:\.\d+)?\s+(?:Astra|Sol|Luna)(?:\s+Pro)?)(?:\s|$)/i,
     includeHidden: true,
   });
 }
