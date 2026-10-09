@@ -59,8 +59,6 @@ export async function selectChatGptModelFamily(
     throw familyError(family, cause);
   }
 }
-}
-}
 
 export function chatGptModelFamilyMatches(
   descriptions: readonly string[],
@@ -118,6 +116,7 @@ export async function assertChatGptModelFamily(
   } while (true);
   throw familyError(family);
 }
+
 
 
 
