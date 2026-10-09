@@ -20,10 +20,52 @@ test("model selection recognizes Latest in the launcher languages without accept
   }
 });
 
+test("model selection recognizes the exact 5.6 Sol family with or without the GPT prefix", async () => {
+  for (const [label, accepted] of [
+    ["5.6 Sol", true], ["GPT-5.6 Sol", true], ["GPT 5.6 Sol Pro", true],
+    ["5.6 Terra", false], ["5.6 Luna", false], ["GPT-5.5 Sol", false],
+  ] as const) {
+    const menu = { menu: {
+      getByRole: (_role: string, options: { name: RegExp }) => ({
+        count: async () => options.name.test(label) ? 1 : 0,
+        getAttribute: async () => "true",
+        waitFor: async () => { throw new Error("Requested family is absent"); },
+      }),
+      locator: () => ({ count: async () => 1, getAttribute: async () => "invalid" }),
+    } } as unknown as Parameters<typeof selectChatGptModelFamily>[0];
+    const selection = selectChatGptModelFamily(menu, "5.6", async () => menu);
+    if (accepted) expect(await selection).toBe(menu);
+    else await expect(selection).rejects.toThrow("could not be selected and verified");
+  }
+});
+
+test("model selection clicks 5.6 Sol and verifies that ChatGPT marked it", async () => {
+  let checked = false;
+  let clicks = 0;
+  const option = {
+    count: async () => 1,
+    getAttribute: async () => checked ? "true" : "false",
+    waitFor: async () => {},
+    click: async () => { clicks += 1; checked = true; },
+  };
+  const trigger = { count: async () => 1, getAttribute: async () => "true", click: async () => {} };
+  const menu = { menu: {
+    getByRole: () => option,
+    locator: (selector: string) => selector === "[data-model-picker-view]"
+      ? { count: async () => 0 }
+      : trigger,
+  } } as unknown as Parameters<typeof selectChatGptModelFamily>[0];
+
+  await expect(selectChatGptModelFamily(menu, "5.6", async () => menu)).resolves.toBe(menu);
+  expect(clicks).toBe(1);
+  expect(checked).toBe(true);
+});
+
 test("family confirmation separates Latest staging from the actual Pro response", () => {
   expect(chatGptModelFamilyMatches(["5.6 High, 3 of 5."], "5.6", "high")).toBe(true);
   expect(chatGptModelFamilyMatches(["5.6 Extra High, 4 of 5."], "6", "xhigh")).toBe(true);
   expect(chatGptModelFamilyMatches(["6 Pro, 5 of 5."], "6", "max")).toBe(true);
+  expect(chatGptModelFamilyMatches(["6.1 Astra Pro, 5 of 5."], "6", "max")).toBe(true);
   expect(chatGptModelFamilyMatches(["GPT-5.6 Sol Pro, 5 of 5."], "5.6", "max")).toBe(true);
   for (const descriptions of [[], ["Try Pro for more reasoning"], ["5.6 High, 3 of 5."], ["5.6 Pro, 5 of 5."],
     ["7 Pro, 5 of 5."], ["6 Sol Pro, 5 of 5."], ["6 Pro, 5 of 5.", "5.6 Pro, 5 of 5."], ["6 Pro for better answers"]]) {
